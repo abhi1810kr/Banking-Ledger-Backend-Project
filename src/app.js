@@ -15,4 +15,8 @@ app.use("/api/auth", authRouter)
 app.use("/api/accounts", accountRouter)
 app.use("/api/transactions", transactionRouter)
 
+app.get('/', (req, res)=>{
+  res.send('Ledger server is running')
+})
+
 module.exports = app;
