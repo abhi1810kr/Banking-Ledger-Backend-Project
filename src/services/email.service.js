@@ -1,8 +1,13 @@
+
 require("dotenv").config();
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  family: 4,
+
   auth: {
     type: "OAuth2",
     user: process.env.EMAIL_USER,
@@ -10,16 +15,24 @@ const transporter = nodemailer.createTransport({
     clientSecret: process.env.CLIENT_SECRET,
     refreshToken: process.env.REFRESH_TOKEN,
   },
+
+  connectionTimeout: 20000,
+  greetingTimeout: 20000,
+  socketTimeout: 30000,
 });
 
-// Verify the connection configuration
-transporter.verify((error, success) => {
-  if (error) {
-    console.error("Error connecting to email server:", error);
-  } else {
-    console.log("Email server is ready to send messages");
-  }
-});
+transporter.verify()
+  .then(() => {
+    console.log("Gmail SMTP connection successful");
+  })
+  .catch((error) => {
+    console.error("Gmail SMTP verification failed:", {
+      code: error.code,
+      command: error.command,
+      message: error.message,
+    });
+  });
+
 
 // Function to send email
 const sendEmail = async (to, subject, text, html) => {
