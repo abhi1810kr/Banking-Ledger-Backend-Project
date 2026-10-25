@@ -66,7 +66,8 @@ async function createTransactionController(req, res){
        if(isTransactionExists.status === 'COMPLETED'){
         return res.status(200).json({
             message:"Transaction already completed",
-            transaction: isTransactionExists
+            transaction: isTransactionExists,
+            emailSent: null
         })
        }
 
@@ -154,11 +155,12 @@ async function createTransactionController(req, res){
      // send email notification to both users
 
 
-     await emailService.sendTransactionEmail(req.user.email, req.user.name, amount, toUserAccount._id);
+     const emailSent = await emailService.sendTransactionEmail(req.user.email, req.user.name, amount, toUserAccount._id);
 
      return res.status(201).json({
         message:"Transaction completed successfully",
-        transaction
+        transaction,
+        emailSent
      })
 
      }

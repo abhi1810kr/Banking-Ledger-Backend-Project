@@ -47,8 +47,10 @@ const sendEmail = async (to, subject, text, html) => {
 
     console.log("Message sent: %s", info.messageId);
     console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+    return true;
   } catch (error) {
     console.error("Error sending email:", error);
+    return false;
   }
 };
 
@@ -64,7 +66,7 @@ async function sendTransactionEmail(userEmail, name, amount, toAccount) {
   const subject = "Transaction Successful";
   const text = `Hello ${name}, \n\nYour transaction of amount ${amount} to account ${toAccount} has been completed successfully. \n\nBest regards, \n The Banking Ledger Team`;
   const html = `<p>Hello ${name},</p><p>\n\nYour transaction of amount ${amount} to account ${toAccount} has been completed successfully.</p><p> \n\nBest regards, \n<br> The Banking Ledger Team</p>`;
-  await sendEmail(userEmail, subject, text, html);
+  return sendEmail(userEmail, subject, text, html);
 }
 
 async function sendTransactionFailedEmail(userEmail, name, amount, toAccount) {
