@@ -1,5 +1,6 @@
 const express = require('express');
 const cookieParser = require('cookie-parser')
+const cors = require('cors');
 
 const authRouter = require('./routes/auth.routes')
 const accountRouter = require('./routes/account.routes')
@@ -7,7 +8,10 @@ const transactionRouter = require('./routes/transaction.route')
 
 const app = express();
 
+
 const frontendOrigin = process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
+
+app.use(cors({origin:"https://banking-ledger-frontend-backend.onrender.com", credentials:true}))
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', frontendOrigin);
