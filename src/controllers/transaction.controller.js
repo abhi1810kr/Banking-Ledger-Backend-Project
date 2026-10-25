@@ -27,14 +27,17 @@ async function createTransactionController(req, res){
     // VALIDATE REQUEST
     const {fromAccount, toAccount, amount, idempotencyKey} = req.body;
 
-    if(!fromAccount || !toAccount || !amount || !idempotencyKey){
+    const numericAmount = Number(amount);
+
+    if(!fromAccount || !toAccount || !idempotencyKey || !Number.isFinite(numericAmount) || numericAmount <= 0){
         return res.status(400).json({
-            message:"Missing required fields"
+            message:"Provide sender, receiver, idempotency key, and an amount greater than zero"
         })
     }
 
     const fromUserAccount = await accountModel.findOne({
         _id: fromAccount,
+        user: req.user._id
     });
 
     const toUserAccount = await accountModel.findOne({ 
@@ -44,6 +47,12 @@ async function createTransactionController(req, res){
      if(!fromUserAccount || !toUserAccount){
         return res.status(404).json({
             message:"Sender or Receiver accounts not found"
+        })
+     }
+
+     if(fromUserAccount._id.equals(toUserAccount._id)){
+        return res.status(400).json({
+            message:"Sender and receiver accounts must be different"
         })
      }
 
@@ -121,10 +130,6 @@ async function createTransactionController(req, res){
         type: 'DEBIT'
      }], {session})
 
-     await (()=>{
-        return new Promise((resolve) => setTimeout(resolve, 20 * 1000))
-     })();
-     
      // create CREDIT ledger entry for toAccount
      const creditLedgerEntry = await ledgerModel.create([{
         account: toAccount,
@@ -169,9 +174,11 @@ async function adminCreateTransactionController(req, res){
     // VALIDATE REQUEST
     const {toAccount, amount, idempotencyKey} = req.body;
 
-    if(!toAccount || !amount || !idempotencyKey){
+    const numericAmount = Number(amount);
+
+    if(!toAccount || !idempotencyKey || !Number.isFinite(numericAmount) || numericAmount <= 0){
         return res.status(400).json({
-            message:"Missing required fields"
+            message:"Provide receiver, idempotency key, and an amount greater than zero"
         })
     }
 
